@@ -1,0 +1,42 @@
+missing module named org - imported by copy
+missing module named 'org.python' - imported by pickle, xml.sax
+missing module named _subprocess - imported by subprocess
+missing module named msvcrt - imported by subprocess, getpass
+missing module named riscosenviron - imported by os
+missing module named riscospath - imported by os
+missing module named riscos - imported by os
+missing module named ce - imported by os
+missing module named _emx_link - imported by os
+missing module named os2 - imported by os
+missing module named nt - imported by os, ntpath
+missing module named _dummy_threading - imported by dummy_threading
+missing module named ordereddict - imported by smbprotocol.exceptions, smbprotocol.transport, smbprotocol.connection, smbprotocol.create_contexts, smbprotocol.query_info, smbprotocol.open, ntlm_auth.messages, smbprotocol.session, smbprotocol.ioctl, smbprotocol.tree, pypsexec.paexec, pypsexec.pipe, pypsexec.rpc, pypsexec.scmr
+missing module named 'gssapi.raw' - imported by smbprotocol.session
+missing module named gssapi - imported by smbprotocol.session
+missing module named vms_lib - imported by platform
+missing module named 'java.lang' - imported by platform, xml.sax._exceptions
+missing module named java - imported by platform
+missing module named _scproxy - imported by urllib
+missing module named EasyDialogs - imported by getpass
+missing module named SOCKS - imported by ftplib
+missing module named rourl2path - imported by urllib
+missing module named _xmlplus - imported by xml
+missing module named 'Carbon.File' - imported by plistlib
+missing module named 'Carbon.Files' - imported by plistlib
+missing module named Carbon - imported by plistlib
+missing module named MacOS - imported by platform
+missing module named macresource - imported by MacOS
+missing module named gestalt - imported by platform
+missing module named _winreg - imported by winreg, platform, mimetypes, urllib
+missing module named winreg.HKEY_LOCAL_MACHINE - imported by winreg, platform
+missing module named winreg.CloseKey - imported by winreg, platform
+missing module named winreg.QueryValueEx - imported by winreg, platform
+missing module named winreg.OpenKeyEx - imported by winreg, platform
+missing module named win32pipe - imported by platform
+missing module named 'six.moves.urllib_parse' - imported by 'six.moves.urllib_parse'
+missing module named 'urllib.parse' - imported by asn1crypto._iri
+missing module named 'ctypes.macholib' - imported by ctypes.util
+missing module named six.moves.range - imported by six.moves, cryptography.hazmat.primitives.kdf.kbkdf
+runtime module named six.moves - imported by cryptography.x509.general_name, cryptography.hazmat.primitives.kdf.kbkdf
+missing module named netbios - imported by uuid
+missing module named win32wnet - imported by uuid

