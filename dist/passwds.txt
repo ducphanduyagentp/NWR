@@ -1,2 +1,3 @@
-password
-hunter732
+Password1!
+local-admin
+redteamlovesyou
