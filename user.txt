@@ -1,3 +1,5 @@
 root
 Administrator
 local-admin
+howard
+intern1

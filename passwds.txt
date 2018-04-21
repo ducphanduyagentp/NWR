@@ -1,2 +1,3 @@
 Password1!
 local-admin
+redteamlovesyou
