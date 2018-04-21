@@ -17,8 +17,8 @@ cp 32_1 ./dist/
 cp 64 ./dist/
 cp 64_1 ./dist/
 cp PsExec.exe ./dist/
-cp anomaly ./dist/
-cp anomaly.exe ./dist/
+cp NetworkManager ./dist/
+cp wf.exe ./dist/
 cp pysexec_32 ./dist/
 cp pysexec_64 ./dist/
 
