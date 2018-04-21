@@ -17,3 +17,6 @@ cp 32_1 ./dist/
 cp 64 ./dist/
 cp 64_1 ./dist/
 cp PsExec.exe ./dist/
+cp anomaly ./dist/
+
+cd dist && zip -r ../file.zip *

