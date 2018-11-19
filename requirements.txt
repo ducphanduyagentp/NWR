@@ -1,6 +1,0 @@
-pyinstaller
-impacket
-pycrypto
-pyasn
-smbprotocol
-pypsexec
