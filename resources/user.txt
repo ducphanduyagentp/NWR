@@ -1,0 +1,12 @@
+root
+Administrator
+local-admin
+howard
+intern1
+Smitty
+Manager
+Batman
+Thor
+Hulk
+CaptainMarvel
+GreenLantern
