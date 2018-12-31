@@ -12,6 +12,8 @@ import (
 	//"os/exec"
 	//"unicode"
 	"os/exec"
+	"github.com/syossan27/tebata"
+	"syscall"
 )
 
 func main(){
@@ -48,6 +50,7 @@ func main(){
 		}
 	}
 }
+
 
 func downloadzip(url string){
 

