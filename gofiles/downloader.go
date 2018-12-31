@@ -12,8 +12,6 @@ import (
 	//"os/exec"
 	//"unicode"
 	"os/exec"
-	"github.com/syossan27/tebata"
-	"syscall"
 )
 
 func main(){

